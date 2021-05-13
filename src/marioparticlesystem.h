@@ -6,7 +6,7 @@
 
 namespace agl {
     enum Collision {
-        NO_COLLISION, TOP_COLLISION, BOTTOM_COLLISION
+        NO_COLLISION = -1, TOP, BOTTOM, LEFT, RIGHT
     };
 
     class MarioParticleSystem : public ParticleSystem {

@@ -12,6 +12,7 @@ namespace agl {
         Particle(glm::vec3 _pos, glm::vec3 _vel, glm::vec3 _force, glm::vec4 _color, float _size, glm::vec3 _mass)
                 : pos(_pos), vel(_vel), force(_force), color(_color), size(_size), mass(_mass) {
             initPos = _pos;
+            baseY = _pos.y;
         }
 
         glm::vec3 pos;
@@ -22,6 +23,8 @@ namespace agl {
         glm::vec3 mass;
 
         glm::vec3 initPos;
+        float baseY;
+        bool onBrick = false;
     };
 
     class ParticleSystem {
