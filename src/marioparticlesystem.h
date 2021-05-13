@@ -13,11 +13,13 @@ namespace agl {
     public:
         void createParticles(int size) override;
         void update(float dt) override;
+        void draw() override;
         void setKey(int key, int action);
 
     private:
-        const glm::vec3 spawn = glm::vec3(-0.9, 0, 0);
+        const glm::vec3 spawn = glm::vec3(-0.9, 1, 0);
         std::unordered_map<int, bool> pressedKeys;
+        std::unordered_map<std::string, GLuint> textures;
 
         void updateMario(float dt);
         void updateGoomba(float dt);

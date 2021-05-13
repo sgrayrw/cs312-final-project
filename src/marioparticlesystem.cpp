@@ -6,11 +6,12 @@
 using namespace agl;
 
 void MarioParticleSystem::createParticles(int size) {
-    mTexture = theRenderer.loadTexture("../textures/mario.png");
+    textures["mario"] = theRenderer.loadTexture("../textures/mario.png");
+    textures["jump"] = theRenderer.loadTexture("../textures/jump.png");
 
     Particle mario {
             spawn,
-            glm::vec3(0, 0.5, 0),
+            glm::vec3(0),
             glm::vec3(0, -9.8, 0), // gravity
             glm::vec4(1),
             0.2,
@@ -38,16 +39,23 @@ void MarioParticleSystem::createParticles(int size) {
     };
     mParticles.push_back(brick);
 
-    for (int i = 0; i < 10; ++i) {
-        Particle baseWall {
-                glm::vec3(-1 + i * 0.2, -0.2, 0),
-                glm::vec3(0),
-                glm::vec3(0),
-                glm::vec4(1),
-                0.2,
-                glm::vec3(1),
-        };
-        mParticles.push_back(baseWall);
+    for (int i = 0; i < 3; ++i) {
+        mParticles.push_back({
+            glm::vec3(-1 + i * 0.2, -0.2, 0),
+             glm::vec3(0),
+             glm::vec3(0),
+             glm::vec4(1),
+             0.2,
+             glm::vec3(1)
+        });
+        mParticles.push_back({
+            glm::vec3(i * 0.2, -0.2, 0),
+             glm::vec3(0),
+             glm::vec3(0),
+             glm::vec4(1),
+             0.2,
+             glm::vec3(1)
+        });
     }
 }
 
@@ -92,6 +100,11 @@ void MarioParticleSystem::updateMario(float dt) {
     if (mario.onBrick) {
         mario.pos.y = mario.baseY;
         mario.vel.y = glm::max(0.0f, mario.vel.y);
+    }
+
+    if (mario.pos.y < -1) {
+        mario.vel = glm::vec3(0);
+        mario.pos = spawn;
     }
 }
 
@@ -147,7 +160,7 @@ void MarioParticleSystem::handleCollision() {
     }
 
     mario.onBrick = false;
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < 6; ++i) {
         Particle& brick = mParticles[2 + i];
         collision = collide(mario, brick);
         if (collision == TOP) {
@@ -161,5 +174,18 @@ void MarioParticleSystem::handleCollision() {
         } else if (collision == LEFT || collision == RIGHT) {
             mario.vel.x = 0;
         }
+    }
+}
+
+void MarioParticleSystem::draw() {
+    Particle& mario = mParticles[0];
+    GLuint marioTex = (mario.pos.y > mario.baseY) ? textures.at("jump") : textures.at("mario");
+    theRenderer.begin(marioTex, mBlendMode);
+    theRenderer.quad(mario.pos, mario.color, mario.size);
+
+    theRenderer.begin(textures.at("jump"), mBlendMode);
+    for (int i = 0; i < mParticles.size(); i++) {
+        Particle& particle = mParticles[i];
+        theRenderer.quad(particle.pos, particle.color, particle.size);
     }
 }

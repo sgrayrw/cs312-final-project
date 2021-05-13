@@ -95,6 +95,7 @@ void Renderer::begin(GLuint texIf, BlendMode mode) {
     glUniformMatrix4fv(glGetUniformLocation(mShaderId, "uVP"), 1, GL_FALSE, &mvp[0][0]);
     glUniform3f(glGetUniformLocation(mShaderId, "uCameraPos"), mLookfrom[0], mLookfrom[1], mLookfrom[2]);
 
+    glBindTexture(GL_TEXTURE_2D, texIf);
     GLuint locId = glGetUniformLocation(mShaderId, "image");
     glUniform1i(locId, 0);
 
