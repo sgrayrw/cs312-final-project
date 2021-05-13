@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
     /* Create a windowed mode window and its OpenGL context */
     float width = 500;
     float height = 500;
-    window = glfwCreateWindow(width, height, "Particle Viewer", NULL, NULL);
+    window = glfwCreateWindow(width, height, "Super Mario", NULL, NULL);
     if (!window) {
         glfwTerminate();
         return -1;

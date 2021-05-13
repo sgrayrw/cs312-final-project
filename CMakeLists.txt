@@ -41,5 +41,5 @@ set(SHADERS
         shaders/billboard.fs
         shaders/billboard.vs)
 
-add_executable(demo src/main.cpp ${PSYS_SOURCES} ${RENDER_SOURCES} ${SHADERS})
-target_link_libraries(demo ${CORE})
+add_executable(mario src/main.cpp ${PSYS_SOURCES} ${RENDER_SOURCES} ${SHADERS})
+target_link_libraries(mario ${CORE})

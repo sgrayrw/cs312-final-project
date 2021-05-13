@@ -9,12 +9,19 @@
 namespace agl {
 
     struct Particle {
+        Particle(glm::vec3 _pos, glm::vec3 _vel, glm::vec3 _force, glm::vec4 _color, float _size, glm::vec3 _mass)
+                : pos(_pos), vel(_vel), force(_force), color(_color), size(_size), mass(_mass) {
+            initPos = _pos;
+        }
+
         glm::vec3 pos;
         glm::vec3 vel;
         glm::vec3 force;
         glm::vec4 color;
         float size;
-        float mass;
+        glm::vec3 mass;
+
+        glm::vec3 initPos;
     };
 
     class ParticleSystem {
