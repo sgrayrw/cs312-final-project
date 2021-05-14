@@ -1,61 +1,40 @@
 #define GLM_SWIZZLE
 #include <glm/glm.hpp>
+#include <filesystem>
 #include "util/AGL.h"
 #include "marioparticlesystem.h"
 
 using namespace agl;
 
+void MarioParticleSystem::init(int size) {
+    if (!theRenderer.initialized()) {
+        theRenderer.init("../shaders/billboard.vs", "../shaders/billboard.fs");
+    }
+    loadTextures();
+    createParticles(size);
+}
+
+void MarioParticleSystem::loadTextures() {
+    std::string textureDir = "../textures";
+    for (const auto& entry: std::filesystem::directory_iterator(textureDir)) {
+        std::string filename = entry.path().filename();
+        filename = filename.substr(0, filename.size() - 4);
+        textures[filename] = theRenderer.loadTexture(entry.path());
+    }
+}
+
 void MarioParticleSystem::createParticles(int size) {
-    textures["mario"] = theRenderer.loadTexture("../textures/mario.png");
-    textures["jump"] = theRenderer.loadTexture("../textures/jump.png");
+    particles["background"].push_back(Background(glm::vec3(1)));
 
-    Particle mario {
-            spawn,
-            glm::vec3(0),
-            glm::vec3(0, -9.8, 0), // gravity
-            glm::vec4(1),
-            0.2,
-            glm::vec3(0.2, 1, 1)
-    };
-    mParticles.push_back(mario);
+    particles["mario"].push_back(Mario(spawn));
 
-    Particle goomba {
-            glm::vec3(0.5, 0, 0),
-            glm::vec3(0.1, 0, 0),
-            glm::vec3(0),
-            glm::vec4(1),
-            0.2,
-            glm::vec3(1),
-    };
-    mParticles.push_back(goomba);
+    particles["goomba"].push_back(Goomba(glm::vec3(0.5, 0, 0)));
 
-    Particle brick {
-            glm::vec3(-0.2, 0.3, 0),
-            glm::vec3(0),
-            glm::vec3(0),
-            glm::vec4(1),
-            0.2,
-            glm::vec3(1),
-    };
-    mParticles.push_back(brick);
+    particles["brick"].push_back(Brick(glm::vec3(-0.2, 0.3, 0)));
 
     for (int i = 0; i < 3; ++i) {
-        mParticles.push_back({
-            glm::vec3(-1 + i * 0.2, -0.2, 0),
-             glm::vec3(0),
-             glm::vec3(0),
-             glm::vec4(1),
-             0.2,
-             glm::vec3(1)
-        });
-        mParticles.push_back({
-            glm::vec3(i * 0.2, -0.2, 0),
-             glm::vec3(0),
-             glm::vec3(0),
-             glm::vec4(1),
-             0.2,
-             glm::vec3(1)
-        });
+        particles["baseWall"].push_back(BaseWall(glm::vec3(-1 + i * 0.2, -0.2, 0)));
+        particles["baseWall"].push_back(BaseWall(glm::vec3(i * 0.2, -0.2, 0)));
     }
 }
 
@@ -66,7 +45,7 @@ void MarioParticleSystem::update(float dt) {
 }
 
 void MarioParticleSystem::updateMario(float dt) {
-    Particle& mario = mParticles[0];
+    Particle& mario = particles.at("mario")[0];
 
     // jump
     if (pressedKeys.find(GLFW_KEY_UP) != pressedKeys.end() && pressedKeys.at(GLFW_KEY_UP) &&
@@ -93,7 +72,7 @@ void MarioParticleSystem::updateMario(float dt) {
     mario.pos = mario.pos + dt * mario.vel;
     mario.vel = mario.vel + dt * mario.force / mario.mass;
 
-    // clamp
+    // clamp speed
     mario.vel.x = glm::clamp(mario.vel.x, -1.0f, 1.0f);
 
     // base
@@ -102,6 +81,7 @@ void MarioParticleSystem::updateMario(float dt) {
         mario.vel.y = glm::max(0.0f, mario.vel.y);
     }
 
+    // death
     if (mario.pos.y < -1) {
         mario.vel = glm::vec3(0);
         mario.pos = spawn;
@@ -109,11 +89,11 @@ void MarioParticleSystem::updateMario(float dt) {
 }
 
 void MarioParticleSystem::updateGoomba(float dt) {
-    Particle& goomba = mParticles[1];
-    goomba.pos = goomba.pos + dt * goomba.vel;
-
-    if (glm::abs(goomba.pos.x - goomba.initPos.x) > 0.15) {
-        goomba.vel.x *= -1;
+    for (auto& goomba : particles.at("goomba")) {
+        goomba.pos = goomba.pos + dt * goomba.vel;
+        if (glm::abs(goomba.pos.x - goomba.initPos.x) > 0.15) {
+            goomba.vel.x *= -1;
+        }
     }
 }
 
@@ -148,44 +128,73 @@ Collision MarioParticleSystem::collide(const Particle& from, const Particle& to)
 }
 
 void MarioParticleSystem::handleCollision() {
-    Particle& mario = mParticles[0];
+    Particle& mario = particles.at("mario")[0];
 
-    Particle& goomba = mParticles[1];
-    Collision collision = collide(mario, goomba);
-    if (collision == TOP) {
-        mario.vel.y *= -1;
-    } else if (collision != NO_COLLISION) {
-        mario.pos = spawn;
-        mario.vel = glm::vec3(0);
+    for (auto& goomba : particles.at("goomba")) {
+        Collision collision = collide(mario, goomba);
+        if (collision == TOP) {
+            mario.vel.y *= -1;
+            break;
+        } else if (collision != NO_COLLISION) {
+            mario.pos = spawn;
+            mario.vel = glm::vec3(0);
+            break;
+        }
     }
 
     mario.onBrick = false;
-    for (int i = 0; i < 6; ++i) {
-        Particle& brick = mParticles[2 + i];
-        collision = collide(mario, brick);
-        if (collision == TOP) {
-            mario.onBrick = true;
-            mario.baseY = brick.pos.y + brick.size;
+    for (auto& brick : particles.at("brick")) {
+        if (handleBrickCollision(mario, brick)) {
             break;
         }
-        if (collision == BOTTOM) {
-            mario.vel.y *= -1;
-            mario.pos.y = brick.pos.y - brick.size;
-        } else if (collision == LEFT || collision == RIGHT) {
-            mario.vel.x = 0;
+    }
+    if (!mario.onBrick) {
+        for (auto& baseWall : particles.at("baseWall")) {
+            if (handleBrickCollision(mario, baseWall)) {
+                break;
+            }
         }
     }
 }
 
+bool MarioParticleSystem::handleBrickCollision(Particle& mario, Particle& brick) {
+    Collision collision = collide(mario, brick);
+    if (collision == TOP) {
+        mario.onBrick = true;
+        mario.baseY = brick.pos.y + brick.size;
+        return true;
+    }
+    if (collision == BOTTOM) {
+        mario.vel.y *= -1;
+        mario.pos.y = brick.pos.y - brick.size;
+    } else if (collision == LEFT || collision == RIGHT) {
+        mario.vel.x = 0;
+    }
+    return false;
+}
+
 void MarioParticleSystem::draw() {
-    Particle& mario = mParticles[0];
-    GLuint marioTex = (mario.pos.y > mario.baseY) ? textures.at("jump") : textures.at("mario");
+    theRenderer.begin(textures.at("background"), mBlendMode);
+    Particle& background = particles.at("background")[0];
+    theRenderer.quad(background.pos, background.color, background.size);
+
+    Particle& mario = particles.at("mario")[0];
+    GLuint marioTex = (mario.pos.y > mario.baseY) ? textures.at("mario-jump") : textures.at("mario-0");
     theRenderer.begin(marioTex, mBlendMode);
     theRenderer.quad(mario.pos, mario.color, mario.size);
 
-    theRenderer.begin(textures.at("jump"), mBlendMode);
-    for (int i = 0; i < mParticles.size(); i++) {
-        Particle& particle = mParticles[i];
-        theRenderer.quad(particle.pos, particle.color, particle.size);
+    theRenderer.begin(textures.at("goomba-0"), mBlendMode);
+    for (auto& goomba : particles.at("goomba")) {
+        theRenderer.quad(goomba.pos, goomba.color, goomba.size);
+    }
+
+    theRenderer.begin(textures.at("brick"), mBlendMode);
+    for (auto& brick : particles.at("brick")) {
+        theRenderer.quad(brick.pos, brick.color, brick.size);
+    }
+
+    theRenderer.begin(textures.at("baseWall"), mBlendMode);
+    for (auto& baseWall : particles.at("baseWall")) {
+        theRenderer.quad(baseWall.pos, baseWall.color, baseWall.size);
     }
 }

@@ -11,7 +11,7 @@ Renderer &ParticleSystem::GetRenderer() {
 }
 
 ParticleSystem::ParticleSystem() {
-    mBlendMode = ADD;
+    mBlendMode = ALPHA;
     mTexture = -1;
 }
 

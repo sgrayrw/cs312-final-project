@@ -109,21 +109,19 @@ void Renderer::quad(const glm::vec3 &pos, const glm::vec4 &color, float size) {
     glUniform4f(glGetUniformLocation(mShaderId, "uColor"), color[0], color[1], color[2], color[3]);
     glUniform1f(glGetUniformLocation(mShaderId, "uSize"), size);
 
-    glm::mat4 translateMat = translate(glm::mat4(1.0), -glm::vec3(.5f, .5f, 0));
-    glm::mat4 scaleMat = scale(glm::mat4(1.0), glm::vec3(size));
+    glm::mat4 translateMat = glm::translate(glm::mat4(1.0), -glm::vec3(.5f, .5f, 0));
+    glm::mat4 scaleMat = glm::scale(glm::mat4(1.0), glm::vec3(size));
 
-    glm::vec3 z = normalize(cameraPosition() - glm::vec3(0.5, 0.5, 0));
-    glm::vec3 x = normalize(cross(glm::vec3(0, 1, 0), z));
-    glm::vec3 y = normalize(cross(z, x));
+    glm::vec3 z = glm::normalize(cameraPosition() - glm::vec3(0.5, 0.5, 0));
+    glm::vec3 x = glm::normalize(glm::cross(glm::vec3(0, 1, 0), z));
+    glm::vec3 y = glm::normalize(glm::cross(z, x));
     glm::mat4 rotationMat(glm::mat3(x, y, z));
-    // upside down
 
-    glm::mat4 translate2 = translate(glm::mat4(1.0), pos);
+    glm::mat4 translate2 = glm::translate(glm::mat4(1.0), pos);
 
     glm::mat4 model = translate2 * rotationMat * scaleMat * translateMat;
 
     glUniformMatrix4fv(glGetUniformLocation(mShaderId, "uM"), 1, GL_FALSE, &model[0][0]);
-
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 

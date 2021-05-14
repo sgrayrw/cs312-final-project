@@ -15,6 +15,17 @@ namespace agl {
             baseY = _pos.y;
         }
 
+        Particle(glm::vec3 _pos, glm::vec3 _vel) : Particle(
+                _pos,
+                _vel,
+                glm::vec3(0),
+                glm::vec4(1),
+                0.2,
+                glm::vec3(1)
+        ) {}
+
+        Particle(glm::vec3 _pos) : Particle(_pos, glm::vec3(0)) {}
+
         glm::vec3 pos;
         glm::vec3 vel;
         glm::vec3 force;
@@ -33,7 +44,7 @@ namespace agl {
 
         virtual ~ParticleSystem();
 
-        void init(int size);
+        virtual void init(int size);
 
         virtual void update(float dt) = 0;
 

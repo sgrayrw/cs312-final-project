@@ -52,6 +52,7 @@ bool Image::load(const std::string &filename) {
     clear();
 
     int x, y, n;
+    stbi_set_flip_vertically_on_load(true);
     myData = (Pixel *) stbi_load(filename.c_str(), &x, &y, &n, 0);
     myWidth = x;
     myHeight = y;
