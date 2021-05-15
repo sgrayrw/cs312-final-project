@@ -33,6 +33,7 @@ set(RENDER_SOURCES
 set(PSYS_SOURCES
         src/marioparticlesystem.h
         src/marioparticlesystem.cpp
+        src/particle.h
         src/particlesystem.h
         src/particlesystem.cpp
         )

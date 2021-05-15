@@ -3,41 +3,11 @@
 
 #include "util/AGL.h"
 #include "util/image.h"
+#include "particle.h"
 #include "renderer.h"
 #include <vector>
 
 namespace agl {
-
-    struct Particle {
-        Particle(glm::vec3 _pos, glm::vec3 _vel, glm::vec3 _force, glm::vec4 _color, float _size, glm::vec3 _mass)
-                : pos(_pos), vel(_vel), force(_force), color(_color), size(_size), mass(_mass) {
-            initPos = _pos;
-            baseY = _pos.y;
-        }
-
-        Particle(glm::vec3 _pos, glm::vec3 _vel) : Particle(
-                _pos,
-                _vel,
-                glm::vec3(0),
-                glm::vec4(1),
-                0.2,
-                glm::vec3(1)
-        ) {}
-
-        Particle(glm::vec3 _pos) : Particle(_pos, glm::vec3(0)) {}
-
-        glm::vec3 pos;
-        glm::vec3 vel;
-        glm::vec3 force;
-        glm::vec4 color;
-        float size;
-        glm::vec3 mass;
-
-        glm::vec3 initPos;
-        float baseY;
-        bool onBrick = false;
-    };
-
     class ParticleSystem {
     public:
         ParticleSystem();

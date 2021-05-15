@@ -103,21 +103,30 @@ void Renderer::begin(GLuint texIf, BlendMode mode) {
     glEnableVertexAttribArray(0); // 0 -> Sending VertexPositions to array #0 in the active shader
 }
 
-void Renderer::quad(const glm::vec3 &pos, const glm::vec4 &color, float size) {
+void Renderer::quad(Particle &particle) {
+    auto& pos = particle.pos;
+    auto& color = particle.color;
+    auto& size = particle.size;
+    auto& large = particle.large;
+    auto& died = particle.died;
+
     assert(mInitialized);
     glUniform3f(glGetUniformLocation(mShaderId, "uOffset"), pos[0], pos[1], pos[2]);
     glUniform4f(glGetUniformLocation(mShaderId, "uColor"), color[0], color[1], color[2], color[3]);
     glUniform1f(glGetUniformLocation(mShaderId, "uSize"), size);
 
     glm::mat4 translateMat = glm::translate(glm::mat4(1.0), -glm::vec3(.5f, .5f, 0));
-    glm::mat4 scaleMat = glm::scale(glm::mat4(1.0), glm::vec3(size));
+
+    float scaleY = size + large * 0.1 - died * 0.12;
+    glm::mat4 scaleMat = glm::scale(glm::mat4(1.0), glm::vec3(size, scaleY, size));
 
     glm::vec3 z = glm::normalize(cameraPosition() - glm::vec3(0.5, 0.5, 0));
     glm::vec3 x = glm::normalize(glm::cross(glm::vec3(0, 1, 0), z));
     glm::vec3 y = glm::normalize(glm::cross(z, x));
     glm::mat4 rotationMat(glm::mat3(x, y, z));
 
-    glm::mat4 translate2 = glm::translate(glm::mat4(1.0), pos);
+    float translateY = pos.y - died * 0.06;
+    glm::mat4 translate2 = glm::translate(glm::mat4(1.0), glm::vec3(pos.x, translateY, pos.z));
 
     glm::mat4 model = translate2 * rotationMat * scaleMat * translateMat;
 

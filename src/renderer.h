@@ -4,6 +4,7 @@
 #include "util/AGL.h"
 #include "util/AGLM.h"
 #include "util/image.h"
+#include "particle.h"
 #include <string>
 
 namespace agl {
@@ -29,7 +30,7 @@ namespace agl {
 
         virtual void begin(GLuint textureId, BlendMode mode);
 
-        virtual void quad(const glm::vec3 &pos, const glm::vec4 &color, float size);
+        virtual void quad(Particle &particle);
 
         virtual void end();
 

@@ -29,6 +29,6 @@ void ParticleSystem::draw() {
     theRenderer.begin(mTexture, mBlendMode);
     for (int i = 0; i < mParticles.size(); i++) {
         Particle particle = mParticles[i];
-        theRenderer.quad(particle.pos, particle.color, particle.size);
+        theRenderer.quad(particle);
     }
 }
