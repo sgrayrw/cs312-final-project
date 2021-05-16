@@ -37,6 +37,18 @@ namespace agl {
         ) {}
     };
 
+    struct Coin : Particle {
+        Coin(glm::vec3 pos) : Particle(
+                pos,
+                glm::vec3(0),
+        glm::vec3(0, -9.8, 0), // gravity
+        glm::vec4(1),
+        0.1,
+        glm::vec3(0.2, 1, 1),
+        "coin"
+        ) {}
+    };
+
     struct Mushroom : Particle {
         Mushroom(glm::vec3 pos) : Particle(
                 pos,
@@ -77,6 +89,7 @@ namespace agl {
         std::unordered_map<std::string, GLuint> textures;
         std::unordered_map<std::string, std::vector<Particle>> particles;
 
+        void restart();
         void loadTextures();
         void updateMario(float dt);
         void updateGoomba(float dt);

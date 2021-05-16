@@ -8,7 +8,7 @@
 struct Particle {
     Particle(glm::vec3 pos, glm::vec3 vel, glm::vec3 force, glm::vec4 color, float size, glm::vec3 mass, std::string texture)
             : pos(pos), vel(vel), force(force), color(color), size(size), mass(mass), texture(texture) {
-        initPos = pos;
+        initPos = lastPos = pos;
         baseY = pos.y;
     }
 
@@ -32,6 +32,7 @@ struct Particle {
     glm::vec3 mass;
 
     glm::vec3 initPos;
+    glm::vec3 lastPos;
     float baseY;
     bool onBlock = false;
 
@@ -40,6 +41,7 @@ struct Particle {
     bool died = false;
     int eraseCounter = -1;
     bool left = false;
+    int runCounter = 0;
 };
 
 #endif //PROJECT_PARTICLE_H

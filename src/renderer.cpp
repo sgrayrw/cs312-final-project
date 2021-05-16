@@ -121,6 +121,9 @@ void Renderer::quad(Particle &particle) {
     if (particle.texture == "mario-died") {
         scaleY += 0.06;
     }
+    if (particle.texture == "coin") {
+        scaleY *= 1.5;
+    }
     glm::mat4 scaleMat = glm::scale(glm::mat4(1.0), glm::vec3(size, scaleY, size));
 
     glm::vec3 z = glm::normalize(cameraPosition() - glm::vec3(0.5, 0.5, 0));
