@@ -46,10 +46,23 @@ void MarioParticleSystem::update(float dt) {
     updateMario(dt);
     updateGoomba(dt);
     updateMushroom(dt);
+    updateBrick(dt);
 }
 
 void MarioParticleSystem::updateMario(float dt) {
     Particle& mario = particles["mario"][0];
+
+    if (mario.died) {
+        mario.vel.x = 0;
+        mario.pos = mario.pos + dt * mario.vel;
+        mario.vel = mario.vel + dt * glm::vec3(0, -5, 0) / mario.mass;
+        if (mario.pos.y < LOWER_Y) {
+            mario.vel = glm::vec3(0);
+            mario.pos = SPAWN;
+            mario.died = false;
+        }
+        return;
+    }
 
     // jump
     if (pressedKeys.find(GLFW_KEY_UP) != pressedKeys.end() && pressedKeys[GLFW_KEY_UP] &&
@@ -113,11 +126,24 @@ void MarioParticleSystem::updateMario(float dt) {
 }
 
 void MarioParticleSystem::updateGoomba(float dt) {
-    for (auto& goomba : particles.at("goomba")) {
+    for (auto& goomba : particles["goomba"]) {
         if (!goomba.died) {
             goomba.pos = goomba.pos + dt * goomba.vel;
             if (glm::abs(goomba.pos.x - goomba.initPos.x) > 0.15) {
                 goomba.vel.x *= -1;
+            }
+        }
+    }
+}
+
+void MarioParticleSystem::updateBrick(float dt) {
+    for (auto& block : particles["block"]) {
+        if (block.texture == "brick") {
+            block.pos = block.pos + dt * block.vel;
+            block.vel = block.vel + dt * block.force / block.mass;
+            if (block.pos.y <= block.baseY) {
+                block.pos.y = block.baseY;
+                block.vel.y = glm::max(0.0f, block.vel.y);
             }
         }
     }
@@ -172,8 +198,21 @@ Collision MarioParticleSystem::collide(const Particle& from, const Particle& to)
 }
 
 void MarioParticleSystem::handleCollision() {
+    // mushrooms
+    for (auto& mushroom : particles["mushrooms"]) {
+        handleAllBlockCollision(mushroom, false);
+    }
+
+    // stars
+    for (auto& mushroom : particles["stars"]) {
+        handleAllBlockCollision(mushroom, true);
+    }
+
     // mario
     Particle& mario = particles["mario"][0];
+    if (mario.died) {
+        return;
+    }
     for (auto& goomba : particles["goomba"]) {
         if (!goomba.died) {
             Collision collision = collide(mario, goomba);
@@ -184,8 +223,9 @@ void MarioParticleSystem::handleCollision() {
                 goomba.eraseCounter = 30;
                 break;
             } else if (collision != NO_COLLISION) {
-                mario.pos = SPAWN;
-                mario.vel = glm::vec3(0);
+                mario.died = true;
+                mario.texture = "mario-died";
+                mario.vel = glm::vec3(0, 2, 0);
                 break;
             }
         }
@@ -208,16 +248,6 @@ void MarioParticleSystem::handleCollision() {
         }
     }
     handleAllBlockCollision(mario, false);
-
-    // mushrooms
-    for (auto& mushroom : particles["mushrooms"]) {
-        handleAllBlockCollision(mushroom, false);
-    }
-
-    // stars
-    for (auto& mushroom : particles["stars"]) {
-        handleAllBlockCollision(mushroom, true);
-    }
 }
 
 void MarioParticleSystem::handleAllBlockCollision(Particle& object, bool bounce) {
@@ -248,6 +278,10 @@ bool MarioParticleSystem::handleBlockCollision(Particle &object, Particle &block
                 block.pos.x, block.pos.y + block.size + 0.01, block.pos.z
             )));
             block.texture = "question-1";
+        }
+
+        if (block.texture == "brick") {
+            block.vel.y = 1;
         }
 
     } else if (collision == LEFT || collision == RIGHT) {

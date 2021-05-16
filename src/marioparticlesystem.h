@@ -26,7 +26,15 @@ namespace agl {
     };
 
     struct Block : Particle {
-        Block(glm::vec3 pos, std::string texture) : Particle(pos, texture) {}
+        Block(glm::vec3 pos, std::string texture) : Particle(
+                pos,
+                glm::vec3(0),
+                glm::vec3(0, -9.8, 0), // gravity
+                glm::vec4(1),
+                0.2,
+                glm::vec3(0.2, 1, 1),
+                texture
+        ) {}
     };
 
     struct Mushroom : Particle {
@@ -72,8 +80,9 @@ namespace agl {
         void loadTextures();
         void updateMario(float dt);
         void updateGoomba(float dt);
-        void updateMushroom(float dt);
+        void updateBrick(float dt);
 
+        void updateMushroom(float dt);
         Collision collide(const Particle &from, const Particle &to);
         void handleCollision();
         void handleAllBlockCollision(Particle &object, bool bounce);

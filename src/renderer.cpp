@@ -117,7 +117,10 @@ void Renderer::quad(Particle &particle) {
 
     glm::mat4 translateMat = glm::translate(glm::mat4(1.0), -glm::vec3(.5f, .5f, 0));
 
-    float scaleY = size + large * 0.1 - died * 0.12;
+    float scaleY = size + large * 0.1 - died * 0.12;;
+    if (particle.texture == "mario-died") {
+        scaleY += 0.06;
+    }
     glm::mat4 scaleMat = glm::scale(glm::mat4(1.0), glm::vec3(size, scaleY, size));
 
     glm::vec3 z = glm::normalize(cameraPosition() - glm::vec3(0.5, 0.5, 0));
