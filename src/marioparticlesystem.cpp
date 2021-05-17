@@ -35,7 +35,7 @@ void MarioParticleSystem::createParticles(int size) {
     particles["block"].push_back(Block(glm::vec3(-0.5, -0.3, 0), "brick"));
     particles["block"].push_back(Block(glm::vec3(-0.3, -0.3, 0), "brick"));
 
-    particles["block"].push_back(Coin(glm::vec3(-0.2, 0.3, -1)));
+    particles["block"].push_back(Coin(glm::vec3(-0.2, 0.3, 0)));
 
     for (int i = 0; i < 5; ++i) {
         particles["block"].push_back(Block(glm::vec3(-1 + i * 0.2, -0.8, 0), "baseWall"));
@@ -48,6 +48,7 @@ void MarioParticleSystem::restart() {
     mario.vel = glm::vec3(0);
     mario.pos = SPAWN;
     mario.died = false;
+    mario.large = false;
 
     for (auto& goomba : particles["goomba"]) {
         goomba.eraseCounter = -1;
@@ -153,6 +154,7 @@ void MarioParticleSystem::updateMario(float dt) {
     }
 
     mario.lastPos = mario.pos;
+    theRenderer.lookAt({mario.pos.x, 0, 4}, {mario.pos.x, 0, 0});
 }
 
 void MarioParticleSystem::updateGoomba(float dt) {
@@ -163,7 +165,7 @@ void MarioParticleSystem::updateGoomba(float dt) {
             if (glm::abs(goomba.pos.x - goomba.initPos.x) > 0.15) {
                 goomba.vel.x *= -1;
             }
-            goomba.texture = "goomba-" + std::to_string((goomba.runCounter / 20) % 2);
+            goomba.texture = "goomba-" + std::to_string((goomba.runCounter / 10) % 2);
         }
     }
 }
@@ -207,16 +209,21 @@ void MarioParticleSystem::setKey(int key, int action) {
 Collision MarioParticleSystem::collide(const Particle& from, const Particle& to) {
     bool collisionX = from.pos.x + from.size >= to.pos.x && to.pos.x + to.size >= from.pos.x;
     bool collisionY = from.pos.y + from.size >= to.pos.y && to.pos.y + to.size >= from.pos.y;
+
+    if (from.large && from.pos.y < to.pos.y) {
+        //collisionY = from.pos.y + from.size >= to.pos.y - 0.1;
+    }
+
     if (collisionX && collisionY) {
         glm::vec2 compass[] = {
-                glm::vec2(0.0f, 1.0f),	// up
-                glm::vec2(0.0f, -1.0f),	// down
-                glm::vec2(-1.0f, 0.0f),	// left
-                glm::vec2(1.0f, 0.0f)	// right
+                glm::vec2(0.0f, 1.0f),    // up
+                glm::vec2(0.0f, -1.0f),    // down
+                glm::vec2(-1.0f, 0.0f),    // left
+                glm::vec2(1.0f, 0.0f)    // right
         };
         float max = 0.0f;
-        unsigned int best_match = -1;
-        for (unsigned int i = 0; i < 4; i++) {
+        int best_match = -1;
+        for (int i = 0; i < 4; ++i) {
             float dot_product = glm::dot(glm::normalize(from.pos.xy() - to.pos.xy()), compass[i]);
             if (dot_product > max) {
                 max = dot_product;
@@ -254,10 +261,15 @@ void MarioParticleSystem::handleCollision() {
                 goomba.died = true;
                 goomba.eraseCounter = 30;
                 break;
-            } else if (collision != NO_COLLISION) {
-                mario.died = true;
-                mario.texture = "mario-died";
-                mario.vel = glm::vec3(0, 2, 0);
+            } else if (collision != NO_COLLISION && mario.resetCounter == 0) {
+                if (mario.large) {
+                    mario.large = false;
+                    mario.resetCounter = 120;
+                } else {
+                    mario.died = true;
+                    mario.texture = "mario-died";
+                    mario.vel = glm::vec3(0, 2, 0);
+                }
                 break;
             }
         }
@@ -267,7 +279,7 @@ void MarioParticleSystem::handleCollision() {
         Collision collision = collide(mario, *it);
         if (collision != NO_COLLISION) {
             particles["mushrooms"].erase(it);
-            //mario.large = true;
+            mario.large = true;
             break;
         }
         ++it;
@@ -332,6 +344,9 @@ void MarioParticleSystem::draw() {
     GLuint texId = -1;
     for (auto& kv : particles) {
         for (auto& p : kv.second) {
+            if (p.resetCounter > 0) {
+                p.resetCounter--;
+            }
             if (p.eraseCounter > 0) {
                 p.eraseCounter--;
             }

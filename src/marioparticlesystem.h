@@ -63,11 +63,11 @@ namespace agl {
 
     struct Background : Particle {
         Background(glm::vec3 color) : Particle(
-           glm::vec3(0, 0, -5),
+           glm::vec3(0, 0, -2),
            glm::vec3(0),
            glm::vec3(0),
            glm::vec4(color, 1),
-           100,
+           1000,
            glm::vec3(0),
            "background"
         ) {}

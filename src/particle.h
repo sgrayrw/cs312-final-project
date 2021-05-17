@@ -42,6 +42,7 @@ struct Particle {
     int eraseCounter = -1;
     bool left = false;
     int runCounter = 0;
+    int resetCounter = 0;
 };
 
 #endif //PROJECT_PARTICLE_H

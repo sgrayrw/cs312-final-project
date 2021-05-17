@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
     glClearColor(0, 0, 0, 1);
 
     particleSystem.init(2);
-    float fov = glm::radians(30.0f);
+    float fov = glm::radians(40.0f);
     ParticleSystem::GetRenderer().perspective(fov, 1.0f, 0.1f, 10.0f);
     ParticleSystem::GetRenderer().lookAt(glm::vec3(0, 0, 4), glm::vec3(0, 0, 0));
 

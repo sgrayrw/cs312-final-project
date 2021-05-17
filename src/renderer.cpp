@@ -131,7 +131,7 @@ void Renderer::quad(Particle &particle) {
     glm::vec3 y = glm::normalize(glm::cross(z, x));
     glm::mat4 rotationMat(glm::mat3(x, y, z));
 
-    float translateY = pos.y - died * 0.06;
+    float translateY = pos.y - died * 0.06 + large * 0.05;
     glm::mat4 translate2 = glm::translate(glm::mat4(1.0), glm::vec3(pos.x, translateY, pos.z));
 
     glm::mat4 model = translate2 * rotationMat * scaleMat * translateMat;
