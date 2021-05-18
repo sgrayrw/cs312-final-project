@@ -95,7 +95,7 @@ namespace agl {
         void setKey(int key, int action);
 
     private:
-        const glm::vec3 SPAWN{-0.9, 1, 0};
+        const glm::vec3 SPAWN{-1.3, 1, 0};
         const float LOWER_Y = -3;
 
         std::unordered_map<int, bool> pressedKeys;

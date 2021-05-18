@@ -28,12 +28,35 @@ void MarioParticleSystem::createParticles(int size) {
 
     particles["mario"].push_back(Mario(SPAWN));
 
-    for (int i = 0; i < 30; ++i) {
-        particles["block"].push_back(Block({-1.37 + i * 0.2, -1.37, 0}, "baseWall"));
+    for (int i = 0; i < 50; ++i) {
+        if (i == 11 || i == 12) {
+            continue;
+        }
+
+        particles["scene"].push_back(Block({-1.37 + i * 0.2, -1.37, 0}, "baseWall"));
         particles["block"].push_back(Block({-1.37 + i * 0.2, -1.37 + 0.2, 0}, "baseWall"));
     }
 
-    particles["scene"].push_back(Scene({.5, .5, 0}, 0.6, 0.2, "cloud-3"));
+    particles["scene"].push_back(Scene({-.5, 1, -1}, 1, .5, "cloud-3"));
+    particles["scene"].push_back(Scene({1.5, .9, -1}, .5, .4, "cloud-1"));
+    particles["scene"].push_back(Scene({4, .9, -1}, .6, .4, "cloud-2"));
+
+    particles["scene"].push_back(Scene({-1, -1.2, -1}, .6, .3, "tree-1"));
+    particles["scene"].push_back(Scene({-0.1, -1.2, -1}, .8, .35, "mountain"));
+    particles["scene"].push_back(Scene({1.8, -1.2, -1}, .1, .35, "tree-0"));
+    particles["scene"].push_back(Scene({1.92, -1.2, -1}, .1, .35, "tree-0"));
+    particles["scene"].push_back(Scene({2.04, -1.2, -1}, .1, .35, "tree-0"));
+    particles["scene"].push_back(Scene({3.7, -1.2, -1}, .9, .3, "tree-3"));
+
+    particles["scene"].push_back(Scene({6.5, -0.6, -1}, 1.3, 1.5, "castle"));
+    particles["scene"].push_back(Scene({6.5, 0.29, -1}, 0.25, 0.25, "castle-flag"));
+
+    particles["scene"].push_back(Scene({5.2, -.28, -.01}, 0.25, 1.6, "flagpole"));
+
+    particles["block"].push_back(Block({-0.8 + 0.3, -0.6, 0}, "brick"));
+    particles["block"].push_back(Block({-0.6 + 0.3, -0.6, 0}, "brick"));
+    particles["block"].push_back(Block({-0.4 + 0.3, -0.6, 0}, "brick"));
+    particles["block"].push_back(Block({-0.6 + 0.3, -0, 0}, "question-0"));
 }
 
 void MarioParticleSystem::restart() {
@@ -83,7 +106,7 @@ void MarioParticleSystem::updateMario(float dt) {
 
     // jump
     if (pressedKeys.find(GLFW_KEY_UP) != pressedKeys.end() && pressedKeys[GLFW_KEY_UP] &&
-            mario.vel.y >= 0 && mario.pos.y - mario.baseY < 0.4) {
+            mario.vel.y >= 0 && mario.pos.y - mario.baseY < 0.5) {
         mario.vel.y = 2;
         mario.onBlock = false;
     }
@@ -110,6 +133,7 @@ void MarioParticleSystem::updateMario(float dt) {
 
     // update pos and vel
     mario.pos = mario.pos + dt * mario.vel;
+    mario.pos.x = glm::clamp(mario.pos.x, -1.376f, 6.93f);
     mario.vel = mario.vel + dt * mario.force / mario.mass;
 
     // clamp speed
@@ -148,8 +172,8 @@ void MarioParticleSystem::updateMario(float dt) {
 
     mario.lastPos = mario.pos;
     theRenderer.lookAt(
-            {glm::max(mario.pos.x, 0.0f), 0, 4},
-            {glm::max(mario.pos.x, 0.0f), 0, 0}
+            {glm::clamp(mario.pos.x, 0.0f, 5.57f), 0, 4},
+            {glm::clamp(mario.pos.x, 0.0f, 5.57f), 0, 0}
     );
 }
 
