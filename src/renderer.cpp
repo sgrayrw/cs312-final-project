@@ -107,6 +107,8 @@ void Renderer::quad(Particle &particle) {
     auto& pos = particle.pos;
     auto& color = particle.color;
     auto& size = particle.size;
+    auto& sizeX = particle.sizeX;
+    auto& sizeY = particle.sizeY;
     auto& large = particle.large;
     auto& died = particle.died;
 
@@ -117,19 +119,16 @@ void Renderer::quad(Particle &particle) {
 
     glm::mat4 translateMat = glm::translate(glm::mat4(1.0), -glm::vec3(.5f, .5f, 0));
 
-    float scaleY = size + large * 0.1 - died * 0.12;;
+    float scaleY = sizeY + large * 0.1 - died * 0.12;;
     if (particle.texture == "mario-died") {
         scaleY += 0.06;
     }
     if (particle.texture == "coin") {
         scaleY *= 1.5;
     }
-    glm::mat4 scaleMat = glm::scale(glm::mat4(1.0), glm::vec3(size, scaleY, size));
+    glm::mat4 scaleMat = glm::scale(glm::mat4(1.0), glm::vec3(sizeX, scaleY, 1));
 
-    glm::vec3 z = glm::normalize(cameraPosition() - glm::vec3(0.5, 0.5, 0));
-    glm::vec3 x = glm::normalize(glm::cross(glm::vec3(0, 1, 0), z));
-    glm::vec3 y = glm::normalize(glm::cross(z, x));
-    glm::mat4 rotationMat(glm::mat3(x, y, z));
+    glm::mat4 rotationMat = glm::mat4();
 
     float translateY = pos.y - died * 0.06 + large * 0.05;
     glm::mat4 translate2 = glm::translate(glm::mat4(1.0), glm::vec3(pos.x, translateY, pos.z));

@@ -28,19 +28,12 @@ void MarioParticleSystem::createParticles(int size) {
 
     particles["mario"].push_back(Mario(SPAWN));
 
-    particles["goomba"].push_back(Goomba(glm::vec3(0.6, -0.6, 0)));
-
-    particles["block"].push_back(Block(glm::vec3(-0.7, -0.3, 0), "brick"));
-    particles["block"].push_back(Block(glm::vec3(-0.7, 0.25, 0), "question-0"));
-    particles["block"].push_back(Block(glm::vec3(-0.5, -0.3, 0), "brick"));
-    particles["block"].push_back(Block(glm::vec3(-0.3, -0.3, 0), "brick"));
-
-    particles["block"].push_back(Coin(glm::vec3(-0.2, 0.3, 0)));
-
-    for (int i = 0; i < 5; ++i) {
-        particles["block"].push_back(Block(glm::vec3(-1 + i * 0.2, -0.8, 0), "baseWall"));
-        particles["block"].push_back(Block(glm::vec3(0.5 + i * 0.2, -0.8, 0), "baseWall"));
+    for (int i = 0; i < 30; ++i) {
+        particles["block"].push_back(Block({-1.37 + i * 0.2, -1.37, 0}, "baseWall"));
+        particles["block"].push_back(Block({-1.37 + i * 0.2, -1.37 + 0.2, 0}, "baseWall"));
     }
+
+    particles["scene"].push_back(Scene({.5, .5, 0}, 0.6, 0.2, "cloud-3"));
 }
 
 void MarioParticleSystem::restart() {
@@ -154,7 +147,10 @@ void MarioParticleSystem::updateMario(float dt) {
     }
 
     mario.lastPos = mario.pos;
-    theRenderer.lookAt({mario.pos.x, 0, 4}, {mario.pos.x, 0, 0});
+    theRenderer.lookAt(
+            {glm::max(mario.pos.x, 0.0f), 0, 4},
+            {glm::max(mario.pos.x, 0.0f), 0, 0}
+    );
 }
 
 void MarioParticleSystem::updateGoomba(float dt) {

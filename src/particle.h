@@ -6,11 +6,14 @@
 #define PROJECT_PARTICLE_H
 
 struct Particle {
-    Particle(glm::vec3 pos, glm::vec3 vel, glm::vec3 force, glm::vec4 color, float size, glm::vec3 mass, std::string texture)
-            : pos(pos), vel(vel), force(force), color(color), size(size), mass(mass), texture(texture) {
+    Particle(glm::vec3 pos, glm::vec3 vel, glm::vec3 force, glm::vec4 color, float sizeX, float sizeY, glm::vec3 mass, std::string texture)
+            : pos(pos), vel(vel), force(force), color(color), size(sizeX), sizeX(sizeX), sizeY(sizeY), mass(mass), texture(texture) {
         initPos = lastPos = pos;
         baseY = pos.y;
     }
+
+    Particle(glm::vec3 pos, glm::vec3 vel, glm::vec3 force, glm::vec4 color, float size, glm::vec3 mass, std::string texture)
+            : Particle(pos, vel, force, color, size, size, mass, texture) {}
 
     Particle(glm::vec3 pos, glm::vec3 vel, std::string texture) : Particle(
             pos,
@@ -29,6 +32,8 @@ struct Particle {
     glm::vec3 force;
     glm::vec4 color;
     float size;
+    float sizeX;
+    float sizeY;
     glm::vec3 mass;
 
     glm::vec3 initPos;

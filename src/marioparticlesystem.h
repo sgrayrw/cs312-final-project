@@ -63,13 +63,26 @@ namespace agl {
 
     struct Background : Particle {
         Background(glm::vec3 color) : Particle(
-           glm::vec3(0, 0, -2),
-           glm::vec3(0),
-           glm::vec3(0),
-           glm::vec4(color, 1),
-           1000,
-           glm::vec3(0),
-           "background"
+               glm::vec3(0, 0, -2),
+               glm::vec3(0),
+               glm::vec3(0),
+               glm::vec4(color, 1),
+               1000,
+               glm::vec3(0),
+               "background"
+        ) {}
+    };
+
+    struct Scene : Particle {
+        Scene(glm::vec3 pos, float sizeX, float sizeY, std::string texture) : Particle(
+                pos,
+                glm::vec3(0),
+                glm::vec3(0),
+                glm::vec4(1),
+                sizeX,
+                sizeY,
+                glm::vec3(0),
+                texture
         ) {}
     };
 
@@ -83,7 +96,7 @@ namespace agl {
 
     private:
         const glm::vec3 SPAWN{-0.9, 1, 0};
-        const float LOWER_Y = -1;
+        const float LOWER_Y = -3;
 
         std::unordered_map<int, bool> pressedKeys;
         std::unordered_map<std::string, GLuint> textures;
@@ -94,8 +107,8 @@ namespace agl {
         void updateMario(float dt);
         void updateGoomba(float dt);
         void updateBrick(float dt);
-
         void updateMushroom(float dt);
+
         Collision collide(const Particle &from, const Particle &to);
         void handleCollision();
         void handleAllBlockCollision(Particle &object, bool bounce);
