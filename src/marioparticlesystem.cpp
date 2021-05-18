@@ -57,6 +57,15 @@ void MarioParticleSystem::createParticles(int size) {
     particles["block"].push_back(Block({-0.6 + 0.3, -0.6, 0}, "brick"));
     particles["block"].push_back(Block({-0.4 + 0.3, -0.6, 0}, "brick"));
     particles["block"].push_back(Block({-0.6 + 0.3, -0, 0}, "question-0"));
+
+    for (int i = 0; i < 5; ++i) {
+        for (int j = 0; j <= i; ++j) {
+            particles["block"].push_back(Block({4.03 + i * 0.2, -.97 + j * 0.2, 0}, "brick-2"));
+        }
+    }
+
+    // hack to use "scene", other map entries will cause the texture to be loaded incorrectly, no idea why!
+    particles["scene"].push_back(Goomba({0.2, -.97, 0}));
 }
 
 void MarioParticleSystem::restart() {
@@ -66,10 +75,13 @@ void MarioParticleSystem::restart() {
     mario.died = false;
     mario.large = false;
 
-    for (auto& goomba : particles["goomba"]) {
+    for (auto& goomba : particles["scene"]) {
+        if (goomba.texture.find("goomba") == std::string::npos) {
+            continue;
+        }
         goomba.eraseCounter = -1;
         goomba.died = false;
-        goomba.vel.x = 0.1;
+        goomba.vel.x = 0.2;
         goomba.pos = goomba.initPos;
         goomba.texture = "goomba-0";
     }
@@ -178,11 +190,14 @@ void MarioParticleSystem::updateMario(float dt) {
 }
 
 void MarioParticleSystem::updateGoomba(float dt) {
-    for (auto& goomba : particles["goomba"]) {
+    for (auto& goomba : particles["scene"]) {
+        if (goomba.texture.find("goomba") == std::string::npos) {
+            continue;
+        }
         goomba.runCounter++;
         if (!goomba.died) {
             goomba.pos = goomba.pos + dt * goomba.vel;
-            if (glm::abs(goomba.pos.x - goomba.initPos.x) > 0.15) {
+            if (glm::abs(goomba.pos.x - goomba.initPos.x) > 0.45) {
                 goomba.vel.x *= -1;
             }
             goomba.texture = "goomba-" + std::to_string((goomba.runCounter / 10) % 2);
@@ -272,7 +287,10 @@ void MarioParticleSystem::handleCollision() {
     if (mario.died) {
         return;
     }
-    for (auto& goomba : particles["goomba"]) {
+    for (auto& goomba : particles["scene"]) {
+        if (goomba.texture.find("goomba") == std::string::npos) {
+            continue;
+        }
         if (!goomba.died) {
             Collision collision = collide(mario, goomba);
             if (collision == TOP) {
@@ -317,18 +335,19 @@ void MarioParticleSystem::handleCollision() {
 void MarioParticleSystem::handleAllBlockCollision(Particle& object, bool bounce) {
     object.onBlock = false;
     for (auto& block : particles["block"]) {
-        if (handleBlockCollision(object, block, bounce)) {
+        Collision collision = handleBlockCollision(object, block, bounce);
+        if (object.onBlock && (collision == RIGHT || collision == LEFT)) {
             break;
         }
     }
 }
 
-bool MarioParticleSystem::handleBlockCollision(Particle &object, Particle &block, bool bounce) {
+Collision MarioParticleSystem::handleBlockCollision(Particle &object, Particle &block, bool bounce) {
     Collision collision = collide(object, block);
 
     if (collision != NO_COLLISION && block.texture == "coin") {
         block.eraseCounter = 0;
-        return false;
+        return collision;
     }
 
     if (collision == TOP) {
@@ -337,7 +356,7 @@ bool MarioParticleSystem::handleBlockCollision(Particle &object, Particle &block
         if (bounce) {
             object.vel.y *= -1;
         }
-        return true;
+        return collision;
     }
     if (collision == BOTTOM) {
         object.vel.y *= -1;
@@ -357,7 +376,7 @@ bool MarioParticleSystem::handleBlockCollision(Particle &object, Particle &block
     } else if (collision == LEFT || collision == RIGHT) {
         object.vel.x = 0;
     }
-    return false;
+    return collision;
 }
 
 void MarioParticleSystem::draw() {

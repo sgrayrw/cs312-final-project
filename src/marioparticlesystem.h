@@ -22,7 +22,7 @@ namespace agl {
     };
 
     struct Goomba : Particle {
-        Goomba(glm::vec3 pos) : Particle(pos, glm::vec3(0.1, 0, 0), "goomba-0") {}
+        Goomba(glm::vec3 pos) : Particle(pos, glm::vec3(0.2, 0, 0), "goomba-0") {}
     };
 
     struct Block : Particle {
@@ -112,7 +112,7 @@ namespace agl {
         Collision collide(const Particle &from, const Particle &to);
         void handleCollision();
         void handleAllBlockCollision(Particle &object, bool bounce);
-        bool handleBlockCollision(Particle &object, Particle &block, bool bounce);
+        Collision handleBlockCollision(Particle &object, Particle &block, bool bounce);
     };
 }
 #endif
