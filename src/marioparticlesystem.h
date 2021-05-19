@@ -22,7 +22,7 @@ namespace agl {
     };
 
     struct Goomba : Particle {
-        Goomba(glm::vec3 pos) : Particle(pos, glm::vec3(0.2, 0, 0), "goomba-0") {}
+        Goomba(glm::vec3 pos, int sign) : Particle(pos, glm::vec3(0.2 * sign, 0, 0), "goomba-0") {}
     };
 
     struct Block : Particle {
