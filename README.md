@@ -15,7 +15,7 @@ $ mkdir build
 $ cd build
 $ cmake ..
 $ make
-$ ../mario
+$ ../bin/mario
 ```
 
 ## High-level Design
