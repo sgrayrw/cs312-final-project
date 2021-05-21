@@ -49,7 +49,7 @@ objects will be either updated, created, or removed.
 ## Maths and Physics
 1. Collision detection
    
-   This calculated as box-box 
+   This is calculated as box-box 
    collision, which is the union of horizontal 
    collision and vertical collision. Formally:
    ```c++
